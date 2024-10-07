@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Set your ECR registry URL
-        ECR_REGISTRY = "287489840086.dkr.ecr.ap-southeast-1.amazonaws.com/myecr"
+        ECR_REGISTRY = "585008051018.dkr.ecr.us-east-1.amazonaws.com/kick/kickinecr"
         // Set the name of your Docker image
         dockerImageTag = "${env.BUILD_NUMBER}"
         // Set container port to expose
@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/venugopalsgnew/jenkins_ecr_repo_python.git']])
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/prathikss185/jenkins_ecr_repo_python.git']])
             }
         }
 
