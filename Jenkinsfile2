@@ -50,5 +50,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh "docker stop my_app_container || true"
+                    sh "docker rm my_app_container || true"
+        }
+    }
+}
+
     }
 }
