@@ -18,7 +18,7 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/prathikss185/jenkins_ecr_repo_python.git']])
             }
         }
-
+}
         stage('Building image') {
             steps {
                 script {
