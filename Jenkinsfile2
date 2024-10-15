@@ -43,7 +43,7 @@ pipeline {
                     sh "docker pull ${ECR_REGISTRY}:${dockerImageTag}"
                     
                     // Run the Docker container
-                    sh "docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} --name my_app_container ${ECR_REGISTRY}:${dockerImageTag}"
+                    sh "docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} --name my_app_container2 ${ECR_REGISTRY}:${dockerImageTag}"
                     
                     // Print container details for verification
                     sh "docker ps"
