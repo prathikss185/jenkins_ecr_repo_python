@@ -18,9 +18,8 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/prathikss185/jenkins_ecr_repo_python.git']])
             }
         }
-    }
 
-        stage('Building image') {
+        stage('Building Image') {
             steps {
                 script {
                     dockerImage = docker.build("${ECR_REGISTRY}:${dockerImageTag}")
@@ -31,7 +30,7 @@ pipeline {
         stage('Pushing to ECR') {
             steps {
                 script {
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 585008051018.dkr.ecr.us-east-1.amazonaws.com'
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
                     sh "docker push ${ECR_REGISTRY}:${dockerImageTag}"
                 }
             }
@@ -40,6 +39,10 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
+                    // Stop and remove any existing container with the same name
+                    sh "docker stop my_app_container || true"
+                    sh "docker rm my_app_container || true"
+                    
                     // Pull the image from ECR
                     sh "docker pull ${ECR_REGISTRY}:${dockerImageTag}"
                     
@@ -53,3 +56,10 @@ pipeline {
         }
     }
 
+    post {
+        always {
+            // Clean up any stopped containers to avoid clutter
+            sh "docker container prune -f"
+        }
+    }
+}
