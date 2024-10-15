@@ -2,11 +2,14 @@ pipeline {
     agent any
 
     environment {
+        // Set your ECR registry URL
         ECR_REGISTRY = "585008051018.dkr.ecr.us-east-1.amazonaws.com/highin/highinon"
-        DOCKER_IMAGE_TAG = "${env.BUILD_NUMBER}"
-        CONTAINER_PORT = "8080"
-        HOST_PORT = "8081"
-        CONTAINER_NAME = "my_app_container"
+        // Set the name of your Docker image
+        dockerImageTag = "${env.BUILD_NUMBER}"
+        // Set container port to expose
+        CONTAINER_PORT = "8080"  // Update this with the port your application uses
+        // Set host port to map
+        HOST_PORT = "8081"  // Update this with the port you want to use on the host
     }
 
     stages {
@@ -19,7 +22,7 @@ pipeline {
         stage('Building image') {
             steps {
                 script {
-                    dockerImage = docker.build("${ECR_REGISTRY}:${DOCKER_IMAGE_TAG}")
+                    dockerImage = docker.build("${ECR_REGISTRY}:${dockerImageTag}")
                 }
             }
         }
@@ -27,8 +30,8 @@ pipeline {
         stage('Pushing to ECR') {
             steps {
                 script {
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
-                    sh "docker push ${ECR_REGISTRY}:${DOCKER_IMAGE_TAG}"
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 585008051018.dkr.ecr.us-east-1.amazonaws.com'
+                    sh "docker push ${ECR_REGISTRY}:${dockerImageTag}"
                 }
             }
         }
@@ -36,19 +39,15 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    sh "docker pull ${ECR_REGISTRY}:${DOCKER_IMAGE_TAG}"
-                    sh "docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} --name ${CONTAINER_NAME} ${ECR_REGISTRY}:${DOCKER_IMAGE_TAG}"
+                    // Pull the image from ECR
+                    sh "docker pull ${ECR_REGISTRY}:${dockerImageTag}"
+                    
+                    // Run the Docker container
+                    sh "docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} --name my_app_container ${ECR_REGISTRY}:${dockerImageTag}"
+                    
+                    // Print container details for verification
                     sh "docker ps"
                 }
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                sh "docker stop ${CONTAINER_NAME} || true"
-                sh "docker rm ${CONTAINER_NAME} || true"
             }
         }
     }
