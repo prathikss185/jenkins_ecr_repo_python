@@ -22,9 +22,7 @@ pipeline {
     stage('Building image') {
     steps {
         script {
-            echo "Starting to build Docker image: ${ECR_REGISTRY}:${dockerImageTag}"
             dockerImage = docker.build("${ECR_REGISTRY}:${dockerImageTag}")
-            echo "Docker image built successfully: ${ECR_REGISTRY}:${dockerImageTag}"
         }
     }
 }
