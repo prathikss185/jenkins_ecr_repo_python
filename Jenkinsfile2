@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    environment {
+        // Set your ECR registry URL
+        ECR_REGISTRY = "287489840086.dkr.ecr.ap-southeast-1.amazonaws.com/myecr"
+        // Set the name of your Docker image
+        dockerImageTag = "${env.BUILD_NUMBER}"
+        // Set container port to expose
+        CONTAINER_PORT = "8080"  // Update this with the port your application uses
+        // Set host port to map
+        HOST_PORT = "8081"  // Update this with the port you want to use on the host
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/venugopalsgnew/jenkins_ecr_repo_python.git']])
+            }
+        }
+
+        stage('Building image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${ECR_REGISTRY}:${dockerImageTag}")
+                }
+            }
+        }
+
+        stage('Pushing to ECR') {
+            steps {
+                script {
+                    sh 'aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 287489840086.dkr.ecr.ap-southeast-1.amazonaws.com'
+                    sh "docker push ${ECR_REGISTRY}:${dockerImageTag}"
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Pull the image from ECR
+                    sh "docker pull ${ECR_REGISTRY}:${dockerImageTag}"
+                    
+                    // Run the Docker container
+                    sh "docker run -d -p ${HOST_PORT}:${CONTAINER_PORT} --name my_app_container ${ECR_REGISTRY}:${dockerImageTag}"
+                    
+                    // Print container details for verification
+                    sh "docker ps"
+                }
+            }
+        }
+    }
+}
