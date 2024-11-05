@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Set your ECR registry URL
-        ECR_REGISTRY = "585008051018.dkr.ecr.us-east-1.amazonaws.com/highin/highinon"
+        ECR_REGISTRY = "585008051018.dkr.ecr.us-east-1.amazonaws.com/welcomeinandout/inandout"
         // Set the name of your Docker image
         dockerImageTag = "${env.BUILD_NUMBER}"
         // Set container port to expose
